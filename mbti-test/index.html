@@ -1,0 +1,1114 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
+<title>人格类型测试</title>
+
+<style>
+:root{
+  --bg:#F2F1EE; --card:#FFFFFF; --ink:#24262F;
+  --ink2:#5B5F6B; --ink3:#9A9DA8; --line:#E4E3DE;
+  --analyst:#6B5BD2; --diplomat:#2E9E6B; --sentinel:#3D7EBA; --explorer:#D8A32F;
+  --accent:#3D7EBA; --accent-soft:#EEF3F8;
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
+html,body{margin:0;padding:0;}
+body{
+  background:var(--bg);color:var(--ink);
+  font-family:-apple-system,"PingFang SC","Helvetica Neue","Microsoft YaHei",sans-serif;
+  font-size:15px;line-height:1.6;
+  display:flex;align-items:flex-start;justify-content:center;min-height:100vh;
+}
+.phone{
+  width:390px;height:844px;background:var(--bg);
+  position:relative;overflow:hidden;
+  display:flex;flex-direction:column;
+  box-shadow:0 0 0 1px rgba(0,0,0,.08),0 24px 60px rgba(0,0,0,.14);
+}
+@media(max-width:430px){
+  body{display:block;}
+  .phone{width:100vw;height:100vh;height:100dvh;box-shadow:none;border-radius:0;}
+}
+@media(min-width:431px){ .phone{border-radius:28px;margin:24px 0;} }
+
+.screen{position:absolute;inset:0;display:flex;flex-direction:column;
+  background:var(--bg);opacity:0;pointer-events:none;
+  transform:translateY(10px);transition:opacity .28s ease,transform .28s ease;}
+.screen.on{opacity:1;pointer-events:auto;transform:none;z-index:2;}
+
+/* ---------- 封面 ---------- */
+.cover{flex:1;display:flex;flex-direction:column;padding:0 26px 34px;overflow-y:auto;}
+.cover-hero{padding:54px 0 22px;}
+.cover-badge{display:inline-flex;align-items:center;gap:6px;font-size:11.5px;letter-spacing:.04em;
+  color:var(--ink2);background:#fff;border:1px solid var(--line);
+  padding:5px 11px;border-radius:20px;}
+.cover-badge i{width:6px;height:6px;border-radius:50%;background:var(--diplomat);}
+h1.cover-title{font-size:31px;line-height:1.28;font-weight:700;margin:16px 0 10px;letter-spacing:-.5px;}
+.cover-title em{font-style:normal;color:var(--analyst);}
+.cover-desc{font-size:14px;color:var(--ink2);margin:0 0 20px;}
+.steps{background:#fff;border:1px solid var(--line);border-radius:14px;padding:6px 16px;margin-bottom:14px;}
+.step{display:flex;gap:12px;align-items:flex-start;padding:11px 0;border-bottom:1px solid var(--line);}
+.step:last-child{border-bottom:none;}
+.step .n{width:20px;height:20px;border-radius:50%;background:var(--ink);color:#fff;
+  font-size:11px;display:flex;align-items:center;justify-content:center;flex:none;margin-top:2px;}
+.step .tx{font-size:13.5px;}
+.step .tx b{font-weight:600;display:block;}
+.step .tx span{color:var(--ink3);font-size:12px;}
+.metaline{display:flex;gap:14px;font-size:12px;color:var(--ink3);
+  padding:12px 2px 0;justify-content:center;}
+.btn-primary{width:100%;padding:16px;border-radius:14px;border:none;
+  background:var(--ink);color:#fff;font-size:16px;font-weight:600;font-family:inherit;
+  letter-spacing:.02em;}
+.btn-primary:active{opacity:.85;}
+.btn-ghost{width:100%;padding:13px;border-radius:14px;border:1px solid var(--line);
+  background:transparent;color:var(--ink2);font-size:14px;font-family:inherit;margin-top:10px;}
+.cover-foot{font-size:11.5px;color:var(--ink3);text-align:center;padding-top:14px;}
+
+/* ---------- 答题 ---------- */
+#s-quiz{overflow:hidden;background:#FFFFFF;}
+.q-bar{padding:calc(12px + env(safe-area-inset-top)) 16px 0;background:var(--card);
+  border-bottom:1px solid var(--line);}
+.q-bar-top{display:flex;align-items:center;justify-content:space-between;height:30px;}
+.q-back{display:flex;align-items:center;gap:3px;font-size:13px;color:var(--ink2);
+  background:none;border:none;padding:4px 6px 4px 0;font-family:inherit;}
+.q-back.hide{visibility:hidden;}
+.q-count{font-size:12.5px;color:var(--ink3);font-variant-numeric:tabular-nums;}
+.q-count b{color:var(--ink);font-weight:600;}
+.seg{display:flex;gap:3px;margin:10px 0 12px;}
+.seg i{flex:1;height:4px;border-radius:2px;background:#E9E8E3;overflow:hidden;}
+.seg i b{display:block;height:100%;width:0;border-radius:2px;background:#3D4E7A;
+  transition:width .5s cubic-bezier(.05,.7,.1,1);}
+.q-body{flex:1;display:flex;flex-direction:column;justify-content:center;
+  padding:0 30px;text-align:center;min-height:0;}
+.q-stage{will-change:transform,opacity;}
+.q-mind{font-size:12px;color:var(--ink3);letter-spacing:.08em;margin-bottom:16px;}
+.q-text{font-size:22px;line-height:1.5;font-weight:500;letter-spacing:-.2px;}
+
+/* 选项区：浮起白卡，整体抬到拇指舒适区 */
+.q-foot{flex:none;margin:30px 14px 0;padding:20px 16px 18px;}
+.scale-tip{text-align:center;font-size:13.5px;font-weight:600;
+  height:22px;margin-bottom:12px;opacity:0;transition:opacity .18s;}
+.scale-tip.on{opacity:1;}
+
+/* 圆圈直径编码强度、颜色编码方向；整槽为点击热区，小圆也好点 */
+.scale{display:flex;gap:2px;align-items:center;}
+.dot{flex:1;height:56px;display:flex;align-items:center;justify-content:center;
+  border:none;background:none;padding:0;cursor:pointer;font-family:inherit;}
+.dot i{display:block;width:var(--sz);height:var(--sz);border-radius:50%;
+  border:2px solid var(--ring);background:transparent;
+  transition:background .16s,border-width .16s,transform .16s;}
+.dot.sel i{background:var(--ring);border-width:3px;transform:scale(1.08);}
+.dot:active i{transform:scale(.86);}
+@keyframes dotPop{0%{transform:scale(1)}40%{transform:scale(1.3)}100%{transform:scale(1.08)}}
+.dot.pop i{animation:dotPop .34s cubic-bezier(.34,1.35,.64,1);}
+.scale-ends{display:flex;justify-content:space-between;font-size:14px;font-weight:600;
+  margin-top:14px;padding:0 6px;}
+.scale-ends .ag{color:#2A9E6B;}
+.scale-ends .dg{color:#6F5FB8;}
+/* 底部留白承担屏幕高度差异：矮屏优先压缩这里，选项位置不动 */
+.q-below{flex:0 1 auto;height:calc(158px + env(safe-area-inset-bottom));
+  min-height:48px;}
+@media (prefers-reduced-motion: reduce){
+  .dot.pop i{animation:none;}
+  .seg i b{transition:none;}
+  .screen{transition:opacity .12s;transform:none;}
+}
+@media (max-height:720px){
+  .q-text{font-size:20px;}
+  .q-foot{margin-top:20px;padding:15px 16px 13px;}
+  .q-below{height:calc(112px + env(safe-area-inset-bottom));}
+}
+.scale-ends{display:flex;justify-content:space-between;font-size:11.5px;color:var(--ink3);
+  margin-top:9px;padding:0 2px;}
+
+/* ---------- 计算中 ---------- */
+.calc{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;
+  gap:18px;padding:0 40px;text-align:center;}
+.orb{width:96px;height:96px;border-radius:50%;
+  background:radial-gradient(circle at 35% 32%,#8FA9D8,#3D4E7A);}
+@keyframes pulse{0%,100%{transform:scale(1);opacity:.92}50%{transform:scale(1.07);opacity:1}}
+.calc .orb{animation:pulse 1.5s ease-in-out infinite;}
+.calc-t{font-size:17px;font-weight:600;}
+.calc-s{font-size:13px;color:var(--ink3);}
+.calc-bar{width:180px;height:3px;background:#E4E3DE;border-radius:2px;overflow:hidden;}
+.calc-bar i{display:block;height:100%;width:0;background:var(--ink);transition:width .4s linear;}
+
+/* ---------- 结果 ---------- */
+.res{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;padding-bottom:40px;}
+.res-hero{padding:calc(20px + env(safe-area-inset-top)) 24px 22px;text-align:center;}
+.res-code{font-size:44px;font-weight:700;letter-spacing:2px;line-height:1;
+  color:var(--accent);}
+.res-name{font-size:19px;font-weight:600;margin-top:8px;}
+.res-role{display:inline-block;font-size:11.5px;padding:4px 12px;border-radius:20px;
+  margin-top:9px;background:rgba(255,255,255,.22);}
+.res-line{font-size:13.5px;color:var(--ink2);margin:14px auto 0;max-width:290px;}
+
+.dims{background:var(--card);border-radius:16px;margin:0 16px;padding:6px 16px 12px;}
+.dim{padding:12px 0;border-bottom:1px solid var(--line);}
+.dim:last-child{border-bottom:none;}
+.dim-top{display:flex;justify-content:space-between;font-size:12.5px;margin-bottom:7px;}
+.dim-top b{font-weight:600;}
+.dim-top span{color:var(--accent);font-weight:600;}
+.dim-track{display:flex;height:6px;border-radius:3px;overflow:hidden;background:#EDECE8;}
+.dim-track i{display:block;}
+.dim-key{display:flex;justify-content:space-between;font-size:12px;color:var(--ink3);margin-top:7px;}
+.dim-key b{color:var(--ink2);font-weight:600;}
+
+.sec{background:var(--card);border-radius:16px;margin:14px 16px 0;padding:18px 18px 20px;}
+.sec h3{font-size:15px;font-weight:600;margin:0 0 16px;}
+/* 特质用流式标签：条目数不同也不会出现两栏对不齐 */
+.trait{margin-bottom:18px;}
+.trait:last-child{margin-bottom:0;}
+.trait-h{display:flex;align-items:center;gap:7px;font-size:12.5px;font-weight:600;
+  color:var(--ink2);margin-bottom:10px;}
+.trait-h::before{content:'';width:3px;height:13px;border-radius:2px;background:var(--accent);}
+.trait-h.warn::before{background:#8A8D96;}
+.chips{display:flex;flex-wrap:wrap;gap:7px;}
+.chips span{font-size:12.5px;line-height:1.45;padding:7px 11px;border-radius:9px;
+  border:1px solid transparent;background:var(--accent-soft);color:var(--ink);}
+/* 主题色有可能是金/绿/蓝/紫，靠色相分不开两组，改用「填充 vs 描边」区分 */
+.chips.warn span{background:#FFFFFF;border:1px solid #DEDBD2;color:#5F5E5A;}
+
+/* ---------- 深度报告 ---------- */
+.rep{background:var(--card);border-radius:16px;margin:14px 16px 0;padding:20px 18px 22px;}
+.rep-h{display:flex;align-items:center;gap:8px;font-size:15.5px;font-weight:600;margin:0 0 14px;}
+.rep-h::before{content:'';width:3px;height:15px;border-radius:2px;background:var(--accent);}
+.rep-sub{font-size:12.5px;font-weight:600;color:var(--accent);margin:16px 0 7px;}
+.rep-sub:first-child{margin-top:0;}
+.rep-t{font-size:13.5px;line-height:1.88;color:var(--ink);margin:0 0 12px;}
+.rep-t:last-child{margin-bottom:0;}
+.rep-t b{font-weight:600;}
+.cf{display:flex;flex-direction:column;gap:10px;}
+.cf-row{display:flex;gap:10px;align-items:flex-start;}
+.cf-badge{flex:none;width:36px;height:36px;border-radius:11px;display:flex;align-items:center;
+  justify-content:center;font-size:12.5px;font-weight:700;color:#fff;letter-spacing:-.2px;}
+.cf-body{flex:1;min-width:0;}
+.cf-body b{display:block;font-size:13px;font-weight:600;margin-bottom:2px;}
+.cf-body span{font-size:12.5px;color:var(--ink2);line-height:1.62;}
+.rep-note{font-size:11.5px;color:var(--ink3);line-height:1.75;margin:16px 0 0;
+  padding-top:14px;border-top:1px solid var(--line);}
+.rep-tail{font-size:11.5px;color:var(--ink3);line-height:1.75;margin:18px 20px 0;text-align:center;}
+
+.share-card{margin:16px 16px 0;background:var(--card);border-radius:16px;padding:16px;text-align:center;}
+.share-card img{width:100%;aspect-ratio:690/1040;object-fit:contain;border-radius:12px;
+  display:block;background:#F2F1EE;-webkit-touch-callout:none;user-select:none;-webkit-user-select:none;}
+.share-btn{margin-top:14px;}
+.stage-canvas{position:absolute;left:-9999px;top:0;width:1px;height:1px;opacity:0;pointer-events:none;}
+
+/* ---- 分享面板 ---- */
+.sheet-mask{position:absolute;inset:0;background:rgba(20,22,30,.42);opacity:0;
+  pointer-events:none;transition:opacity .22s;z-index:60;}
+.sheet-mask.on{opacity:1;pointer-events:auto;}
+.sheet{position:absolute;left:0;right:0;bottom:0;background:#fff;
+  border-radius:20px 20px 0 0;padding:20px 20px calc(20px + env(safe-area-inset-bottom));
+  transform:translateY(103%);transition:transform .3s cubic-bezier(.05,.7,.1,1);z-index:61;}
+.sheet.on{transform:none;}
+.sheet-head{display:flex;justify-content:space-between;align-items:center;height:28px;}
+.sheet-head h4{font-size:16px;font-weight:600;margin:0;}
+.sheet-x{border:none;background:none;font-size:13px;color:var(--ink3);
+  padding:4px;font-family:inherit;cursor:pointer;}
+.sheet-note{font-size:13px;color:var(--ink2);line-height:1.7;margin:12px 0 16px;
+  background:#F7F6F2;border-radius:10px;padding:12px 14px;}
+.sheet-note b{color:var(--ink);font-weight:600;}
+.sheet-opt{width:100%;padding:15px;border:1px solid var(--line);border-radius:12px;
+  background:#fff;margin-bottom:10px;font-size:14.5px;font-family:inherit;
+  color:var(--ink);cursor:pointer;}
+.sheet-opt:active{background:#F7F6F2;}
+
+.toast{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);
+  background:rgba(36,38,47,.94);color:#fff;font-size:13.5px;padding:11px 18px;
+  border-radius:10px;opacity:0;pointer-events:none;transition:opacity .25s;z-index:99;}
+.toast.on{opacity:1;}
+</style>
+</head>
+<body>
+
+<div class="phone">
+
+  <!-- ============ 封面 ============ -->
+  <section class="screen on" id="s-cover">
+    <div class="cover">
+      <div class="cover-hero">
+        <span class="cover-badge"><i></i>60 题 · 约 8 分钟</span>
+        <h1 class="cover-title">你是哪一种<em>人格类型</em>？</h1>
+        <p class="cover-desc">基于荣格心理类型学的四维模型，测出你的 16 型人格代码与完整画像。</p>
+      </div>
+
+      <div class="steps">
+        <div class="step"><div class="n">1</div><div class="tx"><b>完成 60 道题</b><span>凭第一直觉作答，没有对错</span></div></div>
+        <div class="step"><div class="n">2</div><div class="tx"><b>得到你的四字母人格代码</b><span>五维倾向强度一览</span></div></div>
+        <div class="step"><div class="n">3</div><div class="tx"><b>立即查看完整深度报告</b><span>共 10 个部分 · 约 8 分钟读完</span></div></div>
+      </div>
+
+      <div class="metaline"><span>无需注册</span><span>·</span><span>可中断续答</span><span>·</span><span>结果可保存分享</span></div>
+
+      <div style="flex:1;min-height:20px;"></div>
+      <button class="btn-primary" onclick="startTest()">开始测试</button>
+      <button class="btn-ghost" onclick="startTest(true)">我已中断过，继续上次进度</button>
+    </div>
+  </section>
+
+  <!-- ============ 答题 ============ -->
+  <section class="screen" id="s-quiz">
+    <div class="q-bar">
+      <div class="q-bar-top">
+        <button class="q-back" id="btnBack" onclick="prevQ()">‹ 上一题</button>
+        <div class="q-count"><b id="qNow">1</b> / <span id="qTotal">60</span></div>
+      </div>
+      <div class="seg" id="seg"></div>
+    </div>
+
+    <div class="q-body">
+      <div class="q-stage" id="qStage">
+        <div class="q-mind" id="qMind">能量方向</div>
+        <div class="q-text" id="qText"></div>
+      </div>
+    </div>
+
+    <div class="q-foot">
+      <div class="scale-tip" id="scaleTip"></div>
+      <div class="scale" id="scale"></div>
+      <div class="scale-ends"><span class="ag">同意</span><span class="dg">不同意</span></div>
+    </div>
+
+    <div class="q-below"></div>
+  </section>
+
+  <!-- ============ 计算中 ============ -->
+  <section class="screen" id="s-calc">
+    <div class="calc">
+      <div class="orb"></div>
+      <div class="calc-t">正在生成你的人格画像</div>
+      <div class="calc-s" id="calcS">正在比对 16 种类型原型…</div>
+      <div class="calc-bar"><i id="calcBar"></i></div>
+    </div>
+  </section>
+
+  <!-- ============ 结果 ============ -->
+  <section class="screen" id="s-result">
+    <div class="res">
+      <div class="res-hero" id="resHero">
+        <div class="res-code" id="resCode">INFP</div>
+        <div class="res-name" id="resName"></div>
+        <div class="res-role" id="resRole"></div>
+        <div class="res-line" id="resLine"></div>
+      </div>
+
+      <div class="dims" id="dims"></div>
+
+      <div class="sec">
+        <h3>你的核心特质</h3>
+        <div class="trait">
+          <div class="trait-h">优势</div>
+          <div class="chips" id="strengths"></div>
+        </div>
+        <div class="trait">
+          <div class="trait-h warn">需要注意</div>
+          <div class="chips warn" id="weakness"></div>
+        </div>
+      </div>
+
+      <div id="reportBox"></div>
+
+      <div class="share-card">
+        <img id="cardImg" alt="你的人格类型卡片" draggable="false">
+        <button class="btn-primary share-btn" onclick="shareCard()">分享结果卡片</button>
+      </div>
+      <canvas id="shareCanvas" width="690" height="1040" class="stage-canvas"></canvas>
+
+      <div class="sheet-mask" id="sheetMask" onclick="closeSheet()"></div>
+      <div class="sheet" id="shareSheet">
+        <div class="sheet-head">
+          <h4>分享测试结果</h4>
+          <button class="sheet-x" onclick="closeSheet()" aria-label="关闭">关闭</button>
+        </div>
+        <p class="sheet-note" id="sheetNote"></p>
+        <button class="sheet-opt" onclick="copyLink()">复制测试链接</button>
+        <button class="sheet-opt" onclick="saveCard()">保存图片到相册</button>
+      </div>
+
+      <div style="padding:18px 16px 0;">
+        <button class="btn-ghost" onclick="restart()">重新测试一次</button>
+      </div>
+    </div>
+  </section>
+
+  <div class="toast" id="toast"></div>
+</div>
+
+<script>
+/* 结果卡片底部那行小字。填上你的账号，卡片被转发时就自带一个导流位。
+   例如：'小红书 @你的账号'；留空则显示默认的中性文案。 */
+const CARD_FOOT_TEXT = '';
+
+/* ============ 题库：60 题，5 个维度各 12 题 ============ */
+const G = {
+  EI:[
+    ['认识新朋友对我来说是件轻松的事',1],['参加热闹的聚会后，我通常更有精神而不是更累',1],
+    ['我习惯边说边把想法理清，而不是想清楚再开口',1],['长时间独处会让我感到空落落的',1],
+    ['我倾向于先行动，再考虑后果',1],['别人很容易看出我当下的情绪',1],
+    ['在群里我常常只看不说话，私聊时反而愿意多聊几句',-1],['我更习惯在安静的环境里完成重要的事',-1],
+    ['社交之后我需要一段独处时间来充电',-1],['我不太主动给不太熟的人发消息',-1],
+    ['我的朋友圈子不大，但关系都很深',-1],['比起被一群人围着，我更喜欢和一两个人深聊',-1]
+  ],
+  SN:[
+    ['相比"这意味着什么"，我更在意"具体发生了什么"',1],['我喜欢用已经被验证过的方法做事',1],
+    ['我更相信亲眼看到、亲手验证过的信息',1],['做计划时我先确认现实条件，而不是先设想可能性',1],
+    ['我对生活里的具体事实和数字记得很清楚',1],['抽象理论要能立刻派上用场，我才有兴趣',1],
+    ['我常在不相关的信息之间看到别人没注意到的联系',-1],['比起眼前的事实，我更容易被未来的可能性吸引',-1],
+    ['我经常走神，脑子里冒出和当下无关的想法',-1],['我喜欢琢磨"如果……会怎样"这类问题',-1],
+    ['读一段文字时，我通常先抓住整体含义而不是细节',-1],['复杂新颖的想法比简单直接的想法更让我兴奋',-1]
+  ],
+  TF:[
+    ['做决定时，我把"是否合理"放在"别人怎么想"前面',1],['我不容易被情绪化的说辞打动',1],
+    ['即使实话伤人，我也倾向于直接说出来',1],['我评价一个观点只看逻辑是否成立，不看谁说的',1],
+    ['我认为规则应该一视同仁，特殊情况也不该例外',1],['别人向我倾诉时，我的第一反应是帮他分析问题',1],
+    ['别人难过时，我很容易被带进去一起难受',-1],['为了维护关系里的和谐，我愿意让步',-1],
+    ['做重要决定时，我会认真考虑它对身边人的影响',-1],['我更在意"对不对得起良心"，而不是"逻辑成不成立"',-1],
+    ['我常因为怕伤害别人而把话咽回去',-1],['得到他人的认可对我来说很重要',-1]
+  ],
+  JP:[
+    ['我喜欢把事情定下来，而不是留着悬念',1],['我的桌面或房间通常保持整洁有条理',1],
+    ['出行前我倾向于提前把行程规划好',1],['待办清单上的事没做完，我会一直惦记',1],
+    ['我不喜欢计划被临时改动',1],['我习惯提前完成，而不是卡在截止日期前赶工',1],
+    ['我喜欢保留多种选择，到最后一刻再决定',-1],['计划赶不上变化，所以我更倾向随机应变',-1],
+    ['我常常同时开好几件事，最后才收口',-1],['在截止日期前，我的效率反而最高',-1],
+    ['我对整理收纳没什么执念，东西能找到就行',-1],['规则太死板的时候，我会想绕过去',-1]
+  ],
+  AT:[
+    ['我对自己做过的决定很少反复纠结',1],['压力大的时候，我反而更冷静',1],
+    ['我不太在意别人对我的评价',1],['情绪波动很少在我身上持续很久',1],
+    ['我能比较快地从一次失败中恢复',1],['我很少因为担心结果而睡不着',1],
+    ['我常会反思自己刚才是不是说错话了',-1],['别人的一句评价能影响我一整天',-1],
+    ['即使已经做得不错，我仍觉得还可以更好',-1],['面对选择时我常常犹豫很久',-1],
+    ['我比大多数人更容易焦虑',-1],['别人夸我的时候，我不太容易真的相信',-1]
+  ]
+};
+
+const DIM_META = {
+  EI:{name:'能量方向',a:['外向','E'],b:['内向','I']},
+  SN:{name:'信息获取',a:['实感','S'],b:['直觉','N']},
+  TF:{name:'决策方式',a:['思考','T'],b:['情感','F']},
+  JP:{name:'生活态度',a:['判断','J'],b:['感知','P']},
+  AT:{name:'身份特质',a:['果断','A'],b:['敏感','T']}
+};
+
+const TYPES = {
+  INTJ:['建筑师','想象力丰富的战略家，万事都有计划','analyst'],
+  INTP:['逻辑学家','充满好奇的创造者，永不停止思考','analyst'],
+  ENTJ:['指挥官','大胆果断的领导者，总能找到或创造方法','analyst'],
+  ENTP:['辩论家','聪明好奇的思想者，无法抗拒智力挑战','analyst'],
+  INFJ:['提倡者','安静而神秘，理想主义且坚定不移','diplomat'],
+  INFP:['调停者','诗意善良的利他主义者，总是热心助人','diplomat'],
+  ENFJ:['主人公','富有魅力的领导者，能鼓舞听众','diplomat'],
+  ENFP:['竞选者','热情有创造力的社交达人，总能找到理由微笑','diplomat'],
+  ISTJ:['物流师','务实且注重事实的人，可靠性不容置疑','sentinel'],
+  ISFJ:['守卫者','非常专注和热心的保护者，时刻准备保护所爱之人','sentinel'],
+  ESTJ:['总经理','出色的管理者，在管理事物或人方面无与伦比','sentinel'],
+  ESFJ:['执政官','极有爱心、善于社交、受欢迎的人，总是乐于助人','sentinel'],
+  ISTP:['鉴赏家','大胆而实际的实验家，精通各种工具','explorer'],
+  ISFP:['探险家','灵活有魅力的艺术家，随时准备探索体验新事物','explorer'],
+  ESTP:['企业家','聪明、精力充沛、非常敏锐的人，享受生活在边缘','explorer'],
+  ESFP:['表演者','自发、精力充沛、热情的表演者，生活从不无聊','explorer']
+};
+const ROLE = {analyst:['分析家','#6B5BD2'],diplomat:['外交家','#2E9E6B'],
+  sentinel:['守卫者','#3D7EBA'],explorer:['探索者','#C08A20']};
+const STRONG = {
+  E:['擅长快速建立连接','在行动中理清思路','能量来自外部互动'],
+  I:['深度专注','内在世界丰富','善于倾听'],
+  S:['务实可靠','对细节敏感','执行力强'],
+  N:['看到可能性','擅长抽象联想','对趋势敏感'],
+  T:['逻辑清晰','决策果断','不易被情绪裹挟'],
+  F:['共情力强','重视关系和谐','价值驱动'],
+  J:['计划性强','收口能力好','稳定可预期'],
+  P:['适应力强','保持开放','临场应变好'],
+  A:['情绪稳定','抗压能力强','自我确信'],
+  T5:['自我要求高','善于复盘','对风险敏感']
+};
+const WEAK = {
+  E:['独处时容易焦躁','可能说得比想得多'],
+  I:['容易过度内耗','社交后需要较长的恢复期'],
+  S:['容易忽略长期图景','对变化接受较慢'],
+  N:['容易忽略落地细节','想法多但收口难'],
+  T:['容易显得直接生硬','忽略情绪价值'],
+  F:['容易为他人情绪买单','难说"不"'],
+  J:['计划被打乱时烦躁','可能过早关闭选项'],
+  P:['拖延倾向','多线并进难收尾'],
+  A:['可能低估风险','反馈吸收偏慢'],
+  T5:['容易反复纠结','对评价过度敏感']
+};
+const LABELS = ['非常不同意','不同意','略微不同意','中立','略微同意','同意','非常同意'];
+
+/* ============ 组卷：60 题，5 个维度各 12 题，正反各半 ============
+   页面只有一个版本：测完直接出完整报告，不做二次收费，也没有激活码。
+   PERM 是每个维度内部的取题顺序——打乱过的，避免正反题成组出现。 */
+const DIMS_ALL = ['EI','SN','TF','JP','AT'];
+const PERM = [0,7,2,9,4,11,6,1,8,3,10,5];
+const PER_DIM = PERM.length;                       // 每个维度 12 题
+
+const ITEMS = [];
+DIMS_ALL.forEach(d => {
+  PERM.forEach(k => ITEMS.push({d, dir:G[d][k][1], t:G[d][k][0]}));
+});
+const NQ = ITEMS.length;                           // 60
+
+/* 题目按维度轮转交错，不连续出同维度的题 */
+const ORDER = [];
+for(let r=0;r<PER_DIM;r++) for(let g=0;g<DIMS_ALL.length;g++) ORDER.push(g*PER_DIM+r);
+
+/* 进度条分 5 段，每段 12 题，答满一段点亮一格 */
+const SEG_N = DIMS_ALL.length, PER_SEG = NQ / SEG_N;
+
+let idx = 0, answers = new Array(NQ).fill(0);
+
+/* ============ 交互 ============ */
+function $(id){return document.getElementById(id);}
+function show(id){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('on'));
+  $(id).classList.add('on');
+}
+function toast(msg){
+  const t=$('toast'); t.textContent=msg; t.classList.add('on');
+  clearTimeout(t._h); t._h=setTimeout(()=>t.classList.remove('on'),1600);
+}
+const LS_KEY = 'mbti_p';
+function save(){ try{ localStorage.setItem(LS_KEY,JSON.stringify({i:idx,a:answers})); }catch(e){} }
+
+const REDUCED = typeof matchMedia==='function' && matchMedia('(prefers-reduced-motion: reduce)').matches;
+let animToken = 0;
+
+function startTest(resume){
+  let ok=false;
+  if(resume){ try{ const p=JSON.parse(localStorage.getItem(LS_KEY)||'null');
+    if(p&&p.a&&p.a.length===NQ){ idx=p.i; answers=p.a; ok=true; } }catch(e){} }
+  if(!ok){ idx=0; answers=new Array(NQ).fill(0); }
+  if(!ok && resume) toast('没有找到可恢复的进度，从头开始');
+
+  const seg=$('seg'); seg.innerHTML='';
+  for(let g=0;g<SEG_N;g++) seg.innerHTML += '<i><b></b></i>';
+  buildScale();
+  paintProgress(true);
+  renderQ(0);
+  show('s-quiz');
+}
+
+/* 量表只构建一次，之后只切换选中态：拇指落点保持不动。
+   设计取自参考图：圆圈直径编码强度、颜色编码方向。
+   左端「同意」绿 → 中间最小灰（中立）→ 右端「不同意」紫。
+   注意整槽都是点击热区，所以最小那颗圆也照样好点。 */
+const SCALE_VAL = [7,6,5,4,3,2,1];
+const SCALE_SZ  = [42,34,26,19,26,34,42];
+const C_AGREE = '#2A9E6B', C_DISAGREE = '#6F5FB8', C_NEUTRAL = '#B4B2A9';
+const SCALE_COL = [C_AGREE,C_AGREE,C_AGREE,C_NEUTRAL,C_DISAGREE,C_DISAGREE,C_DISAGREE];
+
+function buildScale(){
+  const sc=$('scale'); sc.innerHTML='';
+  for(let i=0;i<7;i++){
+    const b=document.createElement('button');
+    b.className='dot';
+    b.style.setProperty('--sz', SCALE_SZ[i]+'px');
+    b.style.setProperty('--ring', SCALE_COL[i]);
+    b.innerHTML='<i></i>';
+    b.onclick=()=>pick(SCALE_VAL[i]);
+    b.onmouseenter=()=>tipOn(SCALE_VAL[i]);
+    b.onmouseleave=()=>$('scaleTip').classList.remove('on');
+    sc.appendChild(b);
+  }
+}
+function tipOn(v){
+  const t=$('scaleTip');
+  t.textContent=LABELS[v-1];
+  t.style.color = v>4 ? C_AGREE : (v<4 ? C_DISAGREE : '#8A8D96');
+  t.classList.add('on');
+}
+
+/* 进度条连续填充：每 12 题填满一格，而不是整格跳变 */
+function paintProgress(instant){
+  const done = answers.filter(a=>a>0).length;
+  document.querySelectorAll('#seg i b').forEach((b,g)=>{
+    const f = Math.max(0, Math.min(1, (done - g*PER_SEG)/PER_SEG));
+    if(instant){
+      b.style.transition='none'; b.style.width=(f*100)+'%';
+      void b.offsetWidth; b.style.transition='';
+    } else {
+      b.style.width=(f*100)+'%';
+    }
+  });
+}
+
+function paintQ(){
+  const it = ITEMS[ORDER[idx]], meta = DIM_META[it.d];
+  $('qNow').textContent = idx+1;
+  $('qTotal').textContent = NQ;
+  $('qMind').textContent = meta.name;
+  $('qText').textContent = it.t;
+  $('btnBack').classList.toggle('hide', idx===0);
+  $('scale').querySelectorAll('.dot').forEach((d,i)=>{
+    d.classList.toggle('sel', answers[ORDER[idx]]===SCALE_VAL[i]);
+  });
+  $('scaleTip').classList.remove('on');
+}
+
+/* dir: 1 前进 / -1 回退 / 0 首次渲染（不做动画） */
+function renderQ(dir){
+  paintProgress(false);
+  const stage = $('qStage');
+  if(dir===0 || REDUCED || !stage.animate){ stage.style.opacity=''; paintQ(); return; }
+
+  const my = ++animToken;
+  const outY = dir===1 ? -14 : 14;
+  const inY  = dir===1 ?  18 : -18;
+
+  stage.animate(
+    [{opacity:1,transform:'translateY(0) scale(1)'},
+     {opacity:0,transform:'translateY('+outY+'px) scale(.985)'}],
+    {duration:120, easing:'cubic-bezier(.4,0,1,1)'}
+  ).finished.then(()=>{
+    if(my!==animToken) return;
+    stage.style.opacity='0';
+    paintQ();
+    stage.animate(
+      [{opacity:0,transform:'translateY('+inY+'px) scale(.99)'},
+       {opacity:1,transform:'translateY(0) scale(1)'}],
+      {duration:240, easing:'cubic-bezier(.05,.7,.1,1)'}
+    ).finished.then(()=>{ if(my===animToken) stage.style.opacity=''; }).catch(()=>{});
+  }).catch(()=>{});
+}
+
+function pick(v){
+  answers[ORDER[idx]] = v; save();
+  const dots = $('scale').querySelectorAll('.dot');
+  dots.forEach(d=>d.classList.remove('sel','pop'));
+  const hit = dots[SCALE_VAL.indexOf(v)];
+  hit.classList.add('sel');
+  void hit.offsetWidth;
+  hit.classList.add('pop');
+  tipOn(v);
+  paintProgress(false);
+  setTimeout(()=>{
+    if(idx===NQ-1){ finish(); } else { idx++; renderQ(1); }
+  },150);
+}
+function prevQ(){ if(idx>0){ idx--; renderQ(-1); } }
+
+/* ============ 计分 ============ */
+function score(){
+  const raw = {EI:0,SN:0,TF:0,JP:0,AT:0}, cnt = {EI:0,SN:0,TF:0,JP:0,AT:0};
+  ITEMS.forEach((it,i)=>{
+    const v = answers[i]; if(!v) return;
+    raw[it.d] += (it.dir===1 ? v : 8-v);
+    cnt[it.d] += 1;
+  });
+  const out={};
+  Object.keys(raw).forEach(d=>{
+    if(!cnt[d]) return;               // 该维度没有题目（精简版不含第五维）
+    const n = cnt[d];
+    const mn = n, mx = n*7;
+    const pct = Math.round((raw[d]-mn)/(mx-mn)*100);
+    out[d] = Math.max(1,Math.min(99,pct));
+  });
+  return out;
+}
+
+function finish(){
+  show('s-calc');
+  const bar=$('calcBar'), s=$('calcS');
+  const steps = ['正在比对 16 种类型原型…','正在计算五个维度的倾向强度…',
+                 '正在匹配你的认知功能排序…','正在生成人格画像…'];
+  const last = steps.length - 1;
+  let p=0;
+  bar.style.width='0%';
+  const timer=setInterval(()=>{
+    p++; bar.style.width=(p*25)+'%';
+    s.textContent=steps[Math.min(p,last)];
+    if(p>=4){ clearInterval(timer); setTimeout(renderResult,380); }
+  },430);
+}
+
+/* ============ 结果 ============ */
+let R = null;
+/* 把主题色往白色方向调，得到极浅的同色系底色 */
+function mixWhite(hex, a){
+  const n = parseInt(hex.slice(1), 16);
+  const r = (n>>16)&255, g = (n>>8)&255, b = n&255;
+  const m = v => Math.round(v*a + 255*(1-a));
+  return 'rgb(' + m(r) + ',' + m(g) + ',' + m(b) + ')';
+}
+
+const DIM_ROWS = ['EI','SN','TF','JP','AT'];
+
+function renderResult(){
+  const p = score();
+  const L = {
+    EI: p.EI>=50?'E':'I', SN: p.SN>=50?'S':'N',
+    TF: p.TF>=50?'T':'F', JP: p.JP>=50?'J':'P',
+    AT: p.AT>=50?'A':'T5'
+  };
+  const code = L.EI+L.SN+L.TF+L.JP;
+  const suffix = L.AT ? '-' + (L.AT==='A'?'A':'T') : '';
+  const role = (L.SN==='N'&&L.TF==='T')?'analyst'
+             : (L.SN==='N'&&L.TF==='F')?'diplomat'
+             : (L.SN==='S'&&L.JP==='J')?'sentinel' : 'explorer';
+  const info = TYPES[code], col = ROLE[role][1];
+  R = {p,L,code,suffix,role,info,col};
+
+  document.documentElement.style.setProperty('--accent', col);
+  document.documentElement.style.setProperty('--accent-soft', mixWhite(col, 0.14));
+  const hero=$('resHero');
+  hero.style.background = col;
+  hero.style.color = '#fff';
+  hero.querySelectorAll('.res-line,.res-code').forEach(e=>e.style.color='#fff');
+  $('resCode').textContent = code + suffix;
+  $('resName').textContent = info[0] + '（' + code + '）';
+  $('resRole').textContent = ROLE[role][0];
+  $('resLine').textContent = info[1];
+
+  // 整页底色取主题色的极浅调，让结果页从头到尾都是这一型的颜色
+  $('s-result').style.background = mixWhite(col, 0.07);
+  hero.style.paddingTop = 'calc(52px + env(safe-area-inset-top))';
+
+  const dims=$('dims'); dims.innerHTML='';
+  DIM_ROWS.forEach(d=>{
+    const a=p[d], b=100-a, m=DIM_META[d];
+    dims.innerHTML +=
+      '<div class="dim"><div class="dim-top"><b>'+m.name+'</b><span>偏'+
+      (a>=b? m.a[0] : m.b[0])+'</span></div>'+
+      '<div class="dim-track"><i style="width:'+a+'%;background:'+col+'"></i>'+
+      '<i style="width:'+b+'%;background:#DAD9D4"></i></div>'+
+      '<div class="dim-key"><span>'+m.a[0]+' '+m.a[1]+' <b>'+a+'%</b></span>'+
+      '<span><b>'+b+'%</b> '+m.b[1]+' '+m.b[0]+'</span></div></div>';
+  });
+
+  const sList=[], wList=[];
+  [L.EI,L.SN,L.TF,L.JP,L.AT].forEach(k=>{
+    (STRONG[k]||[]).forEach(x=>sList.push(x));
+    (WEAK[k]||[]).forEach(x=>wList.push(x));
+  });
+  $('strengths').innerHTML = sList.slice(0,4).map(x=>'<span>'+x+'</span>').join('');
+  $('weakness').innerHTML  = wList.slice(0,3).map(x=>'<span>'+x+'</span>').join('');
+
+  buildReport();
+  drawCard();
+  show('s-result');
+}
+
+
+/* ============ 分享卡片 ============ */
+function drawCard(){
+  const c=$('shareCanvas'), x=c.getContext('2d');
+  const W=c.width,H=c.height, col=R.col;
+  x.clearRect(0,0,W,H);
+  x.fillStyle='#FFFFFF'; x.fillRect(0,0,W,H);
+  x.fillStyle=col; x.fillRect(0,0,W,400);
+  for(let i=0;i<7;i++){
+    x.fillStyle='rgba(255,255,255,'+(0.06+(i%3)*0.05)+')';
+    x.beginPath(); x.arc(60+((i*97)%570),40+((i*61)%300),28+(i*11)%46,0,7); x.fill();
+  }
+
+  x.textAlign='center';
+  x.fillStyle='#fff';
+  x.font='700 84px -apple-system,"PingFang SC",sans-serif';
+  x.fillText(R.code+R.suffix, W/2, 250);
+  x.font='600 32px -apple-system,"PingFang SC",sans-serif';
+  x.fillText(R.info[0], W/2, 314);
+  x.font='400 21px -apple-system,"PingFang SC",sans-serif';
+  x.fillStyle='rgba(255,255,255,.85)';
+  x.fillText(ROLE[R.role][0], W/2, 354);
+
+  x.font='400 23px -apple-system,"PingFang SC",sans-serif';
+  x.fillStyle='#5B5F6B';
+  wrap(x, R.info[1], W/2, 452, 560, 36);
+
+  [['EI','E','I'],['SN','S','N'],['TF','T','F'],['JP','J','P']].forEach(([d,la,lb],i)=>{
+    const y=576+i*82, a=R.p[d], b=100-a, m=DIM_META[d];
+    // 百分比跟在自己那一侧，避免中间浮一个数值说不清属于谁
+    x.textAlign='left'; x.font='500 22px -apple-system,"PingFang SC",sans-serif';
+    x.fillStyle = a>=b ? '#24262F' : '#9A9DA8';
+    x.fillText(m.a[0] + ' ' + a + '%', 70, y);
+    x.textAlign='right';
+    x.fillStyle = b>a ? '#24262F' : '#9A9DA8';
+    x.fillText(b + '% ' + m.b[0], W-70, y);
+    const bw=W-140, by=y+14, cw=bw*a/100;
+    x.fillStyle='#EDECE8'; x.fillRect(70,by,bw,10);
+    x.fillStyle=col; x.fillRect(70,by,cw,10);
+  });
+
+  x.textAlign='center';
+  x.fillStyle='#9A9DA8'; x.font='400 19px -apple-system,"PingFang SC",sans-serif';
+  x.fillText(CARD_FOOT_TEXT || '16 型人格测评 · 测测你是哪一种', W/2, 978);
+  x.fillStyle='#24262F';
+  x.fillRect(W/2-40, 1004, 80, 3);
+
+  exportCard(c);
+}
+
+/* 卡片渲染成 <img>：既是预览，也是分享时传给系统面板的图源 */
+function exportCard(c){
+  try{
+    $('cardImg').src = c.toDataURL('image/png');
+  }catch(e){
+    toast('卡片生成失败，请直接截图保存');
+  }
+}
+
+/* ============ 分享 ============ */
+const UA_STR = navigator.userAgent || '';
+const IN_WECHAT = /MicroMessenger/i.test(UA_STR);
+const IS_IOS = /iPhone|iPad|iPod/i.test(UA_STR);
+
+function cardFile(){
+  return new Promise(function(resolve){
+    const cv = $('shareCanvas');
+    const name = '人格类型-' + (R ? R.code : 'MBTI') + '.png';
+    const pack = function(blob){
+      if(!blob){ resolve(null); return; }
+      try{ resolve(new File([blob], name, {type:'image/png'})); }
+      catch(e){ resolve(blob); }
+    };
+    if(cv.toBlob){ cv.toBlob(pack, 'image/png'); return; }
+    try{
+      const bin = atob(cv.toDataURL('image/png').split(',')[1]);
+      const arr = new Uint8Array(bin.length);
+      for(let i=0;i<bin.length;i++) arr[i] = bin.charCodeAt(i);
+      pack(new Blob([arr], {type:'image/png'}));
+    }catch(e){ pack(null); }
+  });
+}
+
+/* 优先唤起系统分享面板；面板里就包含微信、朋友圈、QQ、微博等 */
+async function shareCard(){
+  if(!R){ toast('还没有生成结果'); return; }
+  const file = await cardFile();
+  if(file && navigator.canShare){
+    try{
+      if(navigator.canShare({files:[file]})){
+        await navigator.share({
+          files:[file],
+          title:'我的人格类型是 ' + R.code + ' · ' + R.info[0],
+          text:R.info[1]
+        });
+        return;
+      }
+    }catch(e){
+      if(e && e.name === 'AbortError') return;   // 用户主动取消，不走兜底
+    }
+  }
+  openSheet();
+}
+
+function openSheet(){
+  const n = $('sheetNote');
+  if(IN_WECHAT){
+    n.innerHTML = '微信内置浏览器不支持唤起系统分享面板。' +
+      '请点击右上角 <b>···</b> 选择「发送给朋友」，好友点开即可直接测；' +
+      '也可以复制链接后粘贴到聊天窗口。';
+  } else if(!navigator.share){
+    n.innerHTML = '当前浏览器不支持直接唤起分享。可<b>复制测试链接</b>发到微信，' +
+      '或保存图片后从聊天窗口的相册发送。';
+  } else {
+    n.innerHTML = '可复制测试链接直接发到微信；也可以保存图片，再从聊天窗口的相册发送。';
+  }
+  $('sheetMask').classList.add('on');
+  $('shareSheet').classList.add('on');
+}
+function closeSheet(){
+  $('sheetMask').classList.remove('on');
+  $('shareSheet').classList.remove('on');
+}
+
+function copyLink(){
+  const url = location.href;
+  const done = function(){ toast('链接已复制，粘贴到微信发送'); closeSheet(); };
+  const fallback = function(){
+    const t = document.createElement('textarea');
+    t.value = url;
+    t.style.cssText = 'position:fixed;top:-1000px;opacity:0';
+    document.body.appendChild(t);
+    t.select();
+    let ok = false;
+    try{ ok = document.execCommand('copy'); }catch(e){}
+    t.remove();
+    ok ? done() : toast('复制失败，请手动复制地址栏链接');
+  };
+  if(navigator.clipboard && navigator.clipboard.writeText){
+    navigator.clipboard.writeText(url).then(done).catch(fallback);
+  } else { fallback(); }
+}
+
+function saveCard(){
+  try{
+    const url = $('shareCanvas').toDataURL('image/png');
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = '人格类型-' + (R ? R.code : 'MBTI') + '.png';
+    document.body.appendChild(a); a.click(); a.remove();
+    closeSheet();
+    toast(IN_WECHAT || IS_IOS
+      ? '若未保存成功，请点右上角 ··· 分享链接给好友'
+      : '图片已开始下载');
+  }catch(e){ toast('保存失败，可改用「复制测试链接」分享'); }
+}
+
+/* 按需求取消卡片图片的长按菜单与右键另存 */
+(function(){
+  const img = $('cardImg');
+  if(!img) return;
+  img.addEventListener('contextmenu', e => e.preventDefault());
+  img.addEventListener('dragstart', e => e.preventDefault());
+})();
+
+function wrap(x,text,cx,y,maxW,lh){
+  let line='', yy=y;
+  for(const ch of text){
+    if(x.measureText(line+ch).width>maxW){ x.fillText(line,cx,yy); line=ch; yy+=lh; }
+    else line+=ch;
+  }
+  if(line) x.fillText(line,cx,yy);
+}
+
+/* ============ 深度报告 ============
+   测完直接出全量报告：不要激活码、不做二次收费、页面里也没有任何付费墙。
+   报告共 10 个部分，全部由下面这些文案函数按你的五维结果拼装而成。 */
+
+const CF_DESC = {
+  Te:['外倾思考','以外部标准衡量结果，追求效率与秩序，擅长把一团混乱排成清晰的清单。'],
+  Ti:['内倾思考','在内部建立精确的逻辑框架，追求自洽——"说不通"的事很难真正说服你。'],
+  Fe:['外倾情感','对群体情绪和氛围高度敏锐，善于协调关系，让在场的每个人都被照顾到。'],
+  Fi:['内倾情感','依循内在的价值标准做判断，对"这是否对得起自己"极其敏感。'],
+  Se:['外倾感觉','沉浸于当下的真实体验，反应快、上手快，在突发状况里反而更清醒。'],
+  Si:['内倾感觉','以过往经验为参照，重视稳定与延续，能把一套成熟的做法长期守住。'],
+  Ne:['外倾直觉','不断向外发散可能性，善于联想与串联，脑子里总有下一个"万一"。'],
+  Ni:['内倾直觉','向内收敛成洞察，擅长看到长期趋势，以及一件事真正的走向。']
+};
+
+const DIM_NARR = {
+  E:['外向','你的能量指向外部世界。与人互动、参与讨论、在行动中推进，都会让你进入更好的状态。你倾向于先表达、再修正，很多想法是在说出口的过程中才成形的。独处太久你会感到空落——你需要外部的回应来确认自己的存在感。'],
+  I:['内向','你的能量指向内部世界。你需要独处来消化信息、恢复精力，真正重要的思考往往发生在安静的时刻。你习惯先想清楚再开口，因此话不多，但通常都经过权衡。社交不是不能，只是成本更高——结束后你需要一段时间才能重新蓄满。'],
+  S:['实感','你信任具体、可验证的信息，习惯站在现实条件上做判断。你注重细节与事实，做事讲究方法和经验，一旦上手就很少出错。对没有落地路径的抽象讨论你会缺乏耐心——"所以具体怎么做"是你最自然的追问。'],
+  N:['直觉','你对可能性和言外之意天然敏感，容易在看似无关的信息之间发现联系。你愿意先设想图景，再倒推路径，因此常能看到别人还没看到的趋势。代价是执行细节容易让你感到琐碎，而把事情真正落地，需要你刻意调用另一套能力。'],
+  T:['思考','你做决定的第一准则是"是否成立"。你能把情绪和事实分开，在别人情绪激动时依然保持冷静，这让你在混乱中显得可靠。代价是：你的直接有时被读成冷漠，而情绪价值恰恰是很多人真正想要的东西。'],
+  F:['情感','你做决定时会把人放进公式里。你对氛围和他人感受高度敏感，能第一时间察觉房间里谁不舒服，这让你成为很好的倾听者和协调者。代价是：你容易为他人的情绪买单，也常常把"拒绝"说得太晚。'],
+  J:['判断','你喜欢确定感。计划、清单、提前完成，能让你感到踏实。你倾向于尽早把选项收口、把事情定下来，因此在需要交付的场合非常可靠。代价是：计划被反复打乱时，你的内耗会明显高于别人。'],
+  P:['感知','你倾向于保留开放的选项，喜欢在变化中找路。你适应力强、临场反应好，常在最后一刻调动出惊人的效率。代价是：收口困难，容易同时开着好几件事，却都停在半途。'],
+  A:['果断','你对自己的判断有一个比较稳的内核。压力和评价不太容易把你带走，你也能较快地从一次失败里恢复，这让你在需要稳定输出的位置上很有优势。代价是：你可能低估风险，也可能对反馈的吸收偏慢。'],
+  T5:['敏感','你对自己保持着持续的审视。这种敏感让你对细节和风险的捕捉比大多数人更早，也是你不断变好的动力来源。代价是：容易反复纠结，容易被一句评价影响一整天。']
+};
+
+const ROLE_INTRO = {
+  analyst:'「分析家」这一组共享同一个底层能力：把复杂的东西拆成结构，并乐于在结构里找更优解。你更信任推理和证据，而不是权威和惯例；比起"大家都这么做"，你更想知道"为什么必须这么做"。这让你在需要拨开噪声、找到真正因果的场合特别有价值——但也容易被误解为冷淡、挑剔，或者"想太多"。',
+  diplomat:'「外交家」这一组的核心不是"温和"，而是对人本身的持续兴趣。你天然关注动机、关系和意义，只要事情与人有关，你的投入度就会明显不同。你希望自己做的事能真正帮到具体的人，而不只是完成一个指标。这让你在需要理解、说服、陪伴的位置上难以替代——但也容易把别人的情绪担在自己身上。',
+  sentinel:'「守卫者」是这套体系里最被低估的一组。你的力量不在于新奇，而在于可靠：承诺过的事会兑现，该走的流程不跳步，交到你手上就能放心。你信任经过检验的方法，也愿意为长期的稳定承担责任。这让你成为组织里真正承重的那根梁——但有时也会因为过于坚持既定做法，错过本可以尝试的新路径。',
+  explorer:'「探索者」的核心是对真实世界的直接反应。你信任自己的感官和手感，喜欢在做的过程中理解事情，而不是先读完说明书。你上手快、适应快，在变化和突发状况里比在稳定流程里更自在。这让你在需要临场判断、动手实操的场景里很有优势——但长期的规划与收口，往往是你需要刻意补上的一课。'
+};
+
+const CORE = {
+  INTJ:'你几乎本能地在为"未来三到五年"做推演，任何当下的事都会被放进长期图景里衡量。这让你显得比同龄人更早看清方向，也让你难以忍受只为今天忙活。',
+  INTP:'你真正在意的是"这件事到底怎么运作"，一个说得通的解释，比一个能用的答案更让你满足。你享受把问题拆到最底层，也因此常在别人已经接受结论的地方，重新发现问题。',
+  ENTJ:'你看到低效会本能地想动手改。组织资源、设定目标、推着事情往前走是你的舒适区，你对"结果是否发生"的责任感，远高于对"过程是否好看"的关注。',
+  ENTP:'你享受把既有结论拆开重装的过程，一个从没人质疑过的前提，最能激起你的兴趣。你脑子里同时开着好几个方向，其中任何一个都可能成为下一个真正投入的项目。',
+  INFJ:'你对人的情绪动机有近乎直觉的判断，常常在对方开口前就已经感觉到哪里不对。你希望自己的深度被看见，却又很少主动展示——这让你容易被误解为疏离。',
+  INFP:'你有一套很坚定的内在价值标准。平时温和、不争，但一旦触碰到原则，你会表现出别人意想不到的固执。你需要做的事与你的价值观一致，否则再多的外部奖励也提不起劲。',
+  ENFJ:'你能看见每个人身上的可能性，并真心希望把对方推到那个位置上。这既是你的天分，也是你的负担——你常常替别人的成长着急，却忘了给自己留位置。',
+  ENFP:'你对新鲜的人和事有天然的兴奋感，能在毫无准备的情况下把一个想法讲得让人心动。你擅长开头，真正的挑战在于——把其中一件事，耐着性子做到底。',
+  ISTJ:'你说到就会做到，交代给你的事不需要别人再盯第二遍。这是你最不声张、也最硬的能力：在所有人都摇摆的时候，你是那个让事情保持稳定的人。',
+  ISFJ:'你记得住别人的偏好和忌口，在对方开口之前就已经把事情准备好。你的付出极其具体、极少邀功，因此也常被当作理所当然——这一点值得你自己先意识到。',
+  ESTJ:'你天生清楚"谁在什么时候该做什么"，并且会确保它真的发生。你对秩序和责任的坚持，是很多团队能真正跑起来的原因，而不是障碍。',
+  ESFJ:'你让一个群体变得有温度——谁的生日、谁最近状态不对，你心里都有一本账。你通过照顾他人来确认自己的价值，也由此承担了很多本不该你承担的情绪。',
+  ISTP:'面对一台出问题的设备或一套跑不通的流程，你会安静地拆开看，直到找到症结。你不太解释过程，但结果通常说明一切，这种"不声张的靠谱"是你最强的标识。',
+  ISFP:'你对美和舒适有一套很私人的尺度，不太会为自己的偏好辩论，但也绝不会轻易让步。你活在具体的感受里，而不是抽象的道理里。',
+  ESTP:'在需要当场拿主意的场合，你最有存在感。别人还在权衡利弊，你已经上手了。你对现实的读取速度极快，也因此常常是那个把停滞局面重新推动起来的人。',
+  ESFP:'你能把任何一个普通场合变得有趣，让人放下戒备、愿意放松下来。你活在当下、感受力强，这让你成为群体里天然的黏合剂——但你也需要有人替你守住长期的那条线。'
+};
+
+function dimNarr(){
+  const L = R.L;
+  const rows = [['EI',L.EI],['SN',L.SN],['TF',L.TF],['JP',L.JP],['AT',L.AT]];
+  return rows.map(function(r){
+    const m = DIM_META[r[0]], n = DIM_NARR[r[1]];
+    return '<p class="rep-sub">'+m.name+' · 偏'+n[0]+'</p><p class="rep-t">'+n[1]+'</p>';
+  }).join('');
+}
+
+function careerLong(code, L){
+  const why = (L.SN==='N'
+      ? '你更适合那些"问题本身还没有标准答案"的领域——需要你先定义问题，再设计路径。'
+      : '你更适合那些"方法和标准已经相对成熟"的领域——把这套东西执行到别人做不到的程度，就是你的价值。')
+    + (L.TF==='T'
+      ? '你的判断依据偏向客观指标，因此涉及评估、取舍与优化的岗位会让你有掌控感。'
+      : '你的判断依据偏向人的感受，因此涉及沟通、服务与影响他人的岗位会让你更有动力。');
+  const risk = (L.JP==='J'
+      ? '需要留意：你对确定性的需求较高，在职责边界模糊、需要长期试错的环境里消耗会很大。进入新岗位时，先把"公司用什么标准评价我"问清楚，比急着证明自己更重要。'
+      : '需要留意：你对结构和流程的耐受度较低，在层层审批的环境里容易烦躁。可以用一份轻量的周计划，给自己搭一个最小的外部骨架。');
+  return '<p class="rep-t">最贴合的方向：<b>'+career(code)+'</b>。</p>'+
+         '<p class="rep-t">'+why+'</p>'+
+         '<p class="rep-t">'+risk+'</p>';
+}
+
+function workComm(L){
+  const t = [];
+  t.push(L.EI==='E'
+    ? '你习惯在讨论中把想法理清，所以"先开会、再定稿"对你来说是自然的顺序。善用这一点：把你需要思考的问题拿到会上说，而不是独自憋着。'
+    : '你需要独处时间才能形成真正的判断。善用这一点：在会议前先拿到议题，给自己留出预读时间；如果被迫当场表态，可以说"我需要想一下，下午给你答复"。');
+  t.push(L.TF==='T'
+    ? '你的反馈通常是准确的，但对方听到的往往先是"被否定"。一个有效的做法是：先明确说出你认可的那部分，再讲你不认同的那部分。'
+    : '你善于察觉气氛，却容易因为怕伤和气而把真正的意见咽回去。一个有效的做法是：把"我觉得这样不太好"换成"如果换成 X 会怎样"——既表达了立场，也不制造对立。');
+  t.push(L.JP==='J'
+    ? '你对"说好的事被临时改"非常敏感。与其事后消耗，不如在开始前就把变更成本讲明白，让对方知道你不是不能变，而是需要提前知道。'
+    : '你的产出经常在截止前才成形，这会让协作者不安。主动同步进度、哪怕只是"我做到哪一步了"，能省掉大量的摩擦。');
+  return t.map(x=>'<p class="rep-t">'+x+'</p>').join('');
+}
+
+function loveLong(L){
+  const a = L.TF==='F'
+    ? '你在关系里优先照顾对方的感受，把"对方是否被回应到"当成关系质量的指标。你需要的是明确的表达和肯定——不是让对方法猜，是说出来。'
+    : '你倾向于用"帮对方解决问题"来表达关心。你需要意识到：多数时候对方要的不是方案，而是先被理解。';
+  const b = L.JP==='J'
+    ? '你偏好关系有清晰的确定性和承诺，"关系在往哪走"这件事悬着，会让你消耗很多。'
+    : '你偏好关系里保留弹性和新鲜感，过度固化的相处模式会让你透不过气。';
+  const c = L.AT==='A'
+    ? '你的情绪内核比较稳，不容易被关系里的波动带走，这让你成为关系里可靠的那一方——但也要留意，对方可能正需要你表达一点真实的脆弱。'
+    : '你对关系里的信号高度敏感，一句语气的细微变化你都能捕捉到。这让你很会照顾人，但也容易把中性的信号读成负面——在做出判断前，先向对方确认一次。';
+  const d = L.EI==='E'
+    ? '你通过互动感受关系的温度，长期的"各忙各的"会让你不安。'
+    : '你需要独处来消化关系里的情绪，对方那句"你为什么不理我"往往只是误会。';
+  return [a,b,c,d].map(x=>'<p class="rep-t">'+x+'</p>').join('');
+}
+
+/* 写给身边的人：把五个维度翻译成"具体该怎么做" */
+function socialTips(L){
+  const t = [];
+  t.push(L.EI==='E'
+    ? '如果他刚认识你就聊得很热络，那不是没分寸，那是他的默认模式——他在用说话整理自己。'
+    : '如果他突然安静下来，不是对你有意见，是他需要独处回血。这时候追问只会让他更退。');
+  t.push(L.SN==='N'
+    ? '跟他说话可以直接跳到结论，中间那几步他自己会补上，甚至能补出你没想到的。'
+    : '给他具体的例子、数字和先后顺序，比给他一个宏大的方向有用得多。');
+  t.push(L.TF==='T'
+    ? '他提反对意见是在帮你找问题，不是在否定你这个人——这一点很容易被误读。'
+    : '在给他建议之前，先说一句"我理解你的感受"，后面的话他才听得进去。');
+  t.push(L.JP==='J'
+    ? '约他请给明确的计划；临时改时间对他来说不是小事，是真的消耗。'
+    : '别把"还没定"理解成不上心，他是在等信息更全一点再做决定。');
+  t.push(L.AT==='A'
+    ? '他不容易表露情绪，不代表没有感受。他习惯自己消化，但被主动问起时通常会打开。'
+    : '他比你以为的更在意你的评价。一句明确的肯定，对他的作用比你想的大得多。');
+  return t.map((x,i)=>'<p class="rep-t"><b>'+(i+1)+'.</b> '+x+'</p>').join('');
+}
+
+/* 最容易混淆的相邻类型：只差最后一个字母（J/P） */
+function neighborText(code){
+  const alt = code.slice(0,3) + (code[3]==='J' ? 'P' : 'J');
+  const isJ = code[3]==='J';
+  const tail = '这不是能力差别，而是对"确定感"的需求强度不同——在压力下，你会更明显地向自己习惯的那一端靠拢。';
+  return '<p class="rep-t">最容易和你混淆的是 <b>'+alt+'（'+TYPES[alt][0]+'）</b>。'+
+    '你俩在三个维度上完全一致，差别只落在最后一个字母上：'+
+    (isJ
+      ? '你更依赖"先把事情定下来"，而 '+alt+' 更倾向"先留出空间，走着看"。在别人眼里，你显得更有计划性、甚至更强势；'+alt+' 则显得更灵活、甚至更随性。'
+      : '你更倾向"先留出空间、走着看"，而 '+alt+' 更依赖"先把事情定下来"。在别人眼里，你显得更灵活、甚至更随性；'+alt+' 则显得更有计划性、甚至更强势。')
+    + tail + '</p>';
+}
+
+const REP_TAIL = '<p class="rep-tail">本报告基于荣格心理类型学框架与你本次的作答生成，用于自我认识与沟通参考，不作为心理诊断或职业决策的唯一依据。</p>';
+
+function buildReport(){
+  const box = $('reportBox'); if(!box) return;
+  box.innerHTML = fullReportHTML();
+}
+
+function fullReportHTML(){
+  const L = R.L, code = R.code, role = R.role, col = R.col, info = R.info;
+  const out = [];
+
+  out.push('<div class="rep"><h3 class="rep-h">认知功能排序</h3><div class="cf">');
+  ['主导功能','辅助功能','第三功能','劣势功能'].forEach(function(t,i){
+    const f = fn(code,i);
+    out.push('<div class="cf-row"><div class="cf-badge" style="background:'+(i===0?col:'#C9C7BE')+'">'+f+
+      '</div><div class="cf-body"><b>'+t+' · '+CF_DESC[f][0]+'</b><span>'+CF_DESC[f][1]+'</span></div></div>');
+  });
+  out.push('</div><p class="rep-note">主导与辅助功能是你最自然的思考方式，用起来毫不费力；劣势功能是压力下最容易失衡的地方——它不会消失，但可以被有意识地训练。</p></div>');
+
+  out.push('<div class="rep"><h3 class="rep-h">你的类型画像</h3>'+
+    '<p class="rep-t">'+ROLE_INTRO[role]+'</p>'+
+    '<p class="rep-t">'+info[0]+'（'+code+R.suffix+'）是「'+ROLE[role][0]+'」中的一员。'+CORE[code]+'</p></div>');
+
+  out.push('<div class="rep"><h3 class="rep-h">五个维度的详细解读</h3>'+dimNarr()+'</div>');
+  out.push('<div class="rep"><h3 class="rep-h">适合的职业方向</h3>'+careerLong(code,L)+'</div>');
+  out.push('<div class="rep"><h3 class="rep-h">职场中的沟通方式</h3>'+workComm(L)+'</div>');
+  out.push('<div class="rep"><h3 class="rep-h">恋爱与依恋模式</h3>'+loveLong(L)+'</div>');
+  out.push('<div class="rep"><h3 class="rep-h">压力与内耗来源</h3><p class="rep-t">'+stressLong(L)+'</p></div>');
+  out.push('<div class="rep"><h3 class="rep-h">可执行的成长路径</h3>'+growLong(L)+'</div>');
+  out.push('<div class="rep"><h3 class="rep-h">给身边人的相处指南</h3>'+
+    '<p class="rep-t" style="color:var(--ink2)">这一节可以直接转给家人、伴侣或同事看。</p>'+
+    socialTips(L)+'</div>');
+  out.push('<div class="rep"><h3 class="rep-h">你与相近类型的区别</h3>'+neighborText(code)+'</div>');
+  out.push(REP_TAIL);
+  return out.join('');
+}
+
+/* 认知功能栈推导（标准 MBTI 规则）
+   功能名写作「功能字母 + 态度」：Te = 外倾思考，Ni = 内倾直觉。
+   J 型让判断功能(T/F)外倾，P 型让感知功能(S/N)外倾；E 型外倾的那个当主导，I 型当辅助。
+   第三功能 = 辅助功能的「同层对面」，劣势功能 = 主导功能的「同层对面」。 */
+const CF_CAT = {T:'F', F:'T', S:'N', N:'S'};
+function flipFn(f){ return CF_CAT[f[0]] + (f[1]==='e' ? 'i' : 'e'); }
+function fn(code,i){
+  const e = code[0];
+  const P  = code[1]==='S' ? 'S' : 'N';   // 感知功能
+  const Jf = code[2]==='T' ? 'T' : 'F';   // 判断功能
+  let dom, aux;
+  if(code[3]==='J'){
+    if(e==='E'){ dom = Jf+'e'; aux = P+'i'; }
+    else       { dom = P+'i';  aux = Jf+'e'; }
+  } else {
+    if(e==='E'){ dom = P+'e';  aux = Jf+'i'; }
+    else       { dom = Jf+'i'; aux = P+'e'; }
+  }
+  const order = [dom, aux, flipFn(aux), flipFn(dom)];
+  return order[i];
+}
+function career(code){
+  const M={INTJ:'战略、架构、投研、产品负责人',INTP:'研究、算法、系统架构、学术',
+    ENTJ:'管理、创业、商务拓展',ENTP:'创新业务、咨询、内容创作',
+    INFJ:'心理咨询、教育、公益、内容',INFP:'写作、设计、品牌、心理相关',
+    ENFJ:'教育培训、人力、公关',ENFP:'市场、创意策划、社群',
+    ISTJ:'财务、审计、法务、运营',ISFJ:'医疗护理、行政、客服管理',
+    ESTJ:'项目管理、运营、销售管理',ESFJ:'客户成功、教育、行政',
+    ISTP:'工程、技术运维、手艺类',ISFP:'设计、摄影、手工、美学相关',
+    ESTP:'销售、商务、创业、应急类',ESFP:'演艺、活动、直播、体验类'};
+  return M[code];
+}
+function stressLong(L){
+  const s=[];
+  if(L.EI==='I') s.push('过度社交之后的能量透支'); else s.push('长时间没有人互动');
+  if(L.JP==='J') s.push('计划被反复临时打乱'); else s.push('被截止日期和琐事逼着收口');
+  s.push(L.AT==='T5' ? '对自己的反复审视与自我怀疑' : '被他人的低效拖慢节奏');
+  const tail = (L.EI==='I'
+      ? '这些消耗对你来说不是"心情不好"，而是实打实的电量下降——它需要的是独处恢复，而不是被人劝"别想太多"。'
+      : '这些消耗会直接表现为烦躁和坐不住——你需要的是新的输入或一场痛快的行动，而不是被按着静下来。')
+    + (L.JP==='J'
+      ? '一个有效的做法是：把不可控的变量提前写下来，并允许其中有 20% 是弹性的，这样临时变化就不再等于失控。'
+      : '一个有效的做法是：给自己设一个"必须收口的时刻"，哪怕产出还不完美，也先交付一个版本。');
+  return '你的主要压力源是：'+s.join('、')+'。'+tail;
+}
+function growLong(L){
+  const a = (L.SN==='N'
+    ? '第一件事：把"想到"落成"做到"。每周固定交出一个可被看见的小产出，不要等想法成熟——它在交付的过程中才会成熟。'
+    : '第一件事：动手之前先花十分钟问自己一句"这件事的长期价值是什么"，避免把效率用在错误的方向上。');
+  const b = (L.TF==='T'
+    ? '第二件事：重要对话之前，先在心里复述一遍对方的处境和感受，再去组织你的论点。'
+    : '第二件事：做重要决定时，给自己设一个不带情绪的冷静期——把"我不想伤害他"和"这件事本身对不对"分开来看。');
+  const c = (L.AT==='T5'
+    ? '第三件事：把"我是不是做错了"换成"我下次具体改哪一点"。注意力从自我评价转移到可执行的动作上，内耗会下降得非常明显。'
+    : '第三件事：主动找一两个愿意给你逆耳反馈的人。你不太容易被评价带走是优势，但也意味着坏消息可能没人敢告诉你。');
+  return '<p class="rep-t">'+a+'</p><p class="rep-t">'+b+'</p><p class="rep-t">'+c+'</p>';
+}
+function restart(){
+  if(!confirm('确定要重新测试吗？当前结果会被清空。')) return;
+  try{ localStorage.removeItem(LS_KEY); }catch(e){}
+  idx=0; answers=new Array(NQ).fill(0);
+  show('s-cover');
+}
+</script>
+</body>
+</html>
